@@ -1,0 +1,24 @@
+Файл GitLab CI для розгортання
+stages:
+  - update-manifests
+  - deploy
+
+update-manifests:
+  stage: update-manifests
+  image: alpine:latest
+  before_script:
+    - apk add --no-cache git
+  script:
+    - sed -i "s|image:.*|image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA|g" k8s/deployment.yaml
+    - git config --global user.email "ci@pipeline.gitlab.com"
+    - git config --global user.name "GitLab CI"
+    - git add k8s/deployment.yaml
+    - git commit -m "Update image to $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
+    - git push origin main
+
+trigger-argo-sync:
+  stage: deploy
+  image: curlimages/curl:latest
+  script:
+    - curl -X POST https://argo-cd-server/api/v1/applications/<application-name>/sync \
+        -H "Authorization: Bearer $ARGOCD_AUTH_TOKEN"
