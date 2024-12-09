@@ -7,11 +7,11 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: windows-latest  # Використовуємо Windows Runner
+    runs-on: windows-latest  # Г‚ГЁГЄГ®Г°ГЁГ±ГІГ®ГўГіВєГ¬Г® Windows Runner
 
     env:
       REGISTRY: docker.io
-      IMAGE_NAME: <your-dockerhub-username>/<your-app-name>
+      IMAGE_NAME: olegmukhin/expense
 
     steps:
     # Checkout the repository
@@ -40,7 +40,7 @@ jobs:
     # Update Kubernetes manifests
     - name: Update Kubernetes manifests
       run: |
-        (Get-Content k8s/deployment.yaml) -replace "image:.*", "image: %REGISTRY%/%IMAGE_NAME%:${{ github.sha }}" | Set-Content k8s/deployment.yaml
+        (Get-Content deployment.yaml) -replace "image:.*", "image: %REGISTRY%/%IMAGE_NAME%:${{ github.sha }}" | Set-Content k8s/deployment.yaml
 
     # Commit updated manifests to the repository
     - name: Commit and push changes
