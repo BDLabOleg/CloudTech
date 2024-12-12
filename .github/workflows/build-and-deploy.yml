@@ -10,8 +10,8 @@ jobs:
     runs-on: windows-latest  # Windows Runner
 
     env:
-      REGISTRY: docker.io
-      IMAGE_NAME: olegmukhin/expense-tracker
+      REGISTRY: docker.io/olegmukhin
+      IMAGE_NAME: expense-tracker:latest
 
     steps:
     # Checkout the repository
