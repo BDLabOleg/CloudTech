@@ -7,7 +7,7 @@ on:
 
 jobs:
   build-and-deploy:
-    runs-on: windows-latest  # Âèêîðèñòîâóºìî Windows Runner
+    runs-on: windows-latest  # Windows Runner
 
     env:
       REGISTRY: docker.io
@@ -28,25 +28,25 @@ jobs:
     # Build the Docker image
     - name: Build Docker image
       run: |
-        docker build -t %REGISTRY%/%IMAGE_NAME%:${{ github.sha }} .
-        docker tag %REGISTRY%/%IMAGE_NAME%:${{ github.sha }} %REGISTRY%/%IMAGE_NAME%:latest
+        docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+        docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
     # Push the Docker image to Docker Hub
     - name: Push Docker image
       run: |
-        docker push %REGISTRY%/%IMAGE_NAME%:${{ github.sha }}
-        docker push %REGISTRY%/%IMAGE_NAME%:latest
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
 
     # Update Kubernetes manifests
     - name: Update Kubernetes manifests
       run: |
-        (Get-Content deployment.yaml) -replace "image:.*", "image: %REGISTRY%/%IMAGE_NAME%:${{ github.sha }}" | Set-Content k8s/deployment.yaml
+        (Get-Content deployment.yaml) -replace "image:.*", "image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" | Set-Content k8s/deployment.yaml
 
     # Commit updated manifests to the repository
     - name: Commit and push changes
       uses: stefanzweifel/git-auto-commit-action@v4
       with:
-        commit_message: "Update Kubernetes manifests with new image %REGISTRY%/%IMAGE_NAME%:${{ github.sha }}"
+        commit_message: "Update Kubernetes manifests with new image ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
         branch: main
 
     # Trigger Argo CD to deploy the changes
