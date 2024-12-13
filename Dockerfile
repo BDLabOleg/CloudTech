@@ -16,7 +16,7 @@ RUN choco install nodejs-lts -y
 WORKDIR /usr/src/app
 
 # Копирование файлов package.json и package-lock.json
-COPY package*.json ./
+COPY app/package*.json ./
 
 # Установка зависимостей
 RUN npm install
