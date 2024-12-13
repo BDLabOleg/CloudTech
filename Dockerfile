@@ -1,7 +1,7 @@
 # Использование Windows Server Core как базового образа
 FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
-# Установка Chocolatey
+# Установка Chocolatey (только один раз)
 RUN powershell -Command \
     Set-ExecutionPolicy Bypass -Scope Process -Force; \
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; \
