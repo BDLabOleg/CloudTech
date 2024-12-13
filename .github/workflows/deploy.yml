@@ -1,51 +1,36 @@
-<<<<<<< HEAD
-Ôàéë GitLab CI äëÿ ðîçãîðòàííÿ
-stages:
-  - update-manifests
-  - deploy
+name: Deploy to Kubernetes via Argo CD
 
-update-manifests:
-  stage: update-manifests
-  image: alpine:latest
-  before_script:
-    - apk add --no-cache git
-  script:
-    - sed -i "s|image:.*|image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA|g" deployment.yaml
-    - git config --global user.email "ci@pipeline.gitlab.com"
-    - git config --global user.name "GitLab CI"
-    - git add k8s/deployment.yaml
-    - git commit -m "Update image to $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
-    - git push origin main
+on:
+  push:
+    branches:
+      - main
 
-trigger-argo-sync:
-  stage: deploy
-  image: curlimages/curl:latest
-  script:
-    - curl -X POST https://argo-cd-server/api/v1/applications/<application-name>/sync \
-        -H "Authorization: Bearer $ARGOCD_AUTH_TOKEN"
-=======
-���� GitLab CI ��� �����������
-stages:
-  - update-manifests
-  - deploy
+jobs:
+  deploy:
+    runs-on: windows-latest  # Используем Windows Runner
 
-update-manifests:
-  stage: update-manifests
-  image: alpine:latest
-  before_script:
-    - apk add --no-cache git
-  script:
-    - sed -i "s|image:.*|image: $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA|g" k8s/deployment.yaml
-    - git config --global user.email "ci@pipeline.gitlab.com"
-    - git config --global user.name "GitLab CI"
-    - git add k8s/deployment.yaml
-    - git commit -m "Update image to $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
-    - git push origin main
+    steps:
+    # Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-trigger-argo-sync:
-  stage: deploy
-  image: curlimages/curl:latest
-  script:
-    - curl -X POST https://argo-cd-server/api/v1/applications/<application-name>/sync \
-        -H "Authorization: Bearer $ARGOCD_AUTH_TOKEN"
->>>>>>> ca8c791 (Удаление файла package.me из репозитория)
+    # Update Kubernetes manifests with the new image
+    - name: Update Kubernetes manifests
+      run: |
+        (Get-Content deployment.yaml) -replace "image:.*", "image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" | Set-Content deployment.yaml
+
+    # Commit updated manifests to the repository
+    - name: Commit and push changes
+      uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: "Update Kubernetes manifests with new image ${{ secrets.REGISTRY }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }}"
+        branch: main
+
+    # Trigger Argo CD sync to deploy changes
+    - name: Trigger Argo CD sync
+      shell: pwsh
+      run: |
+        Invoke-RestMethod -Uri "https://argo-cd-server/api/v1/applications/<application-name>/sync" `
+          -Method POST `
+          -Headers @{ Authorization = "Bearer ${{ secrets.ARGOCD_AUTH_TOKEN }}" }
+
