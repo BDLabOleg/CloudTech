@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: expense-tracker
-        image: docker.io/expense-tracker:ab16a9e4ff705a7fe4288acdc319a1b1126838b4
+        image: /:b195d5ae1abe68883cf20ccf1861c19d40bf8a41
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
