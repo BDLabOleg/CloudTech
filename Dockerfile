@@ -1,4 +1,4 @@
- FROM node:14
+ fROM mcr.microsoft.com/windows/servercore:ltsc2022
 
    WORKDIR /usr/src/app
 
