@@ -30,12 +30,11 @@ jobs:
     - name: Build Docker image
       run: |
         docker build -t expense-tracker:latest .
-       
-    # Push the Docker image to Docker Hub
+              
+# Push the Docker image to Docker Hub
     - name: Push Docker image
       run: |
-        docker push ${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-        docker push ${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:latest
+        docker push olegmukhin/expense-tracker:latest
 
     # Update Kubernetes manifests
     - name: Update Kubernetes manifests
