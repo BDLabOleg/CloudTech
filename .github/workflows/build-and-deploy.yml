@@ -30,7 +30,7 @@ jobs:
     - name: Build Docker image
       run: |
         # docker build -t ${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:latest .
-        docker build -t olegmukhin/expense-tracker:latest .
+        docker build -t expense-tracker:latest .
         docker tag ${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:latest ${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
     # Push the Docker image to Docker Hub
