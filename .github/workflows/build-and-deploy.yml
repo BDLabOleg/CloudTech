@@ -11,7 +11,7 @@ jobs:
 
     env:
       REGISTRY: docker.io/olegmukhin
-      IMAGE_NAME: expense-tracker:latest
+      IMAGE_NAME: expense-tracker
 
     steps:
     # Checkout the repository
@@ -30,6 +30,7 @@ jobs:
       run: |
         docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest .
         docker tag ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+
    
     # Push the Docker image to Docker Hub
     - name: Push Docker image
