@@ -1,4 +1,4 @@
-name: Build Docker
+name: Build
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  build-docker:
     runs-on: windows-latest  # Windows Runner
 
     env:
