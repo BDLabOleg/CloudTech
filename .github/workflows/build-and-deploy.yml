@@ -29,7 +29,6 @@ jobs:
  # Build the Docker image
     - name: Build Docker image
       run: |
-        # docker build -t ${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:latest .
         docker build -t expense-tracker:latest .
         docker tag ${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:latest ${{ env.USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
 
