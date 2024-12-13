@@ -39,7 +39,7 @@ jobs:
     # Update Kubernetes manifests
     - name: Update Kubernetes manifests
       run: |
-        (Get-Content deployment.yaml) -replace "image:.*", "image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" | Set-Content k8s/deployment.yaml
+        (Get-Content deployment.yaml) -replace "image:.*", "image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}" | Set-Content deployment.yaml
 
     # Commit updated manifests to the repository
     - name: Commit and push changes
