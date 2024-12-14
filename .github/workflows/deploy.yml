@@ -31,7 +31,7 @@ jobs:
     - name: Trigger Argo CD sync
       shell: pwsh
       run: |
-        Invoke-RestMethod -Uri "https://argo-cd-server/api/v1/applications/<application-name>/sync" `
+        Invoke-RestMethod -Uri "https://argo-cd-server/api/v1/applications/expense-tracker/sync" `
           -Method POST `
           -Headers @{ Authorization = "Bearer ${{ secrets.ARGOCD_AUTH_TOKEN }}" }
 
