@@ -32,7 +32,7 @@ jobs:
       run: |
         # Извлекаем kubeconfig из секрета GitHub и сохраняем его в нужное место
         $kubeconfig = ${{ secrets.KUBERNETES_CONFIG }}
-        $kubeconfig | Out-File -FilePath "$env:USERPROFILE\.kube\config" -Force
+        $kubeconfig | Out-File -FilePath "C:\Users\Олег\.kube\config" -Force
 
     # Шаг 5: Применение Kubernetes манифестов через kubectl
     - name: Deploy to Kubernetes
