@@ -27,11 +27,15 @@ jobs:
         commit_message: "Update Kubernetes manifests with new image ${{ secrets.REGISTRY }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }}"
         branch: main
 
-    # Trigger Argo CD sync to deploy changes
-    - name: Trigger Argo CD sync
-      shell: pwsh
+    # Шаг 4: Настройка kubeconfig для подключения к Kubernetes
+    - name: Configure Kubernetes credentials
       run: |
-        Invoke-RestMethod -Uri "https://localhost:8080/api/v1/applications/expense-tracker/sync" `
-          -Method POST `
-          -Headers @{ Authorization = "Bearer ${{ secrets.ARGOCD_AUTH_TOKEN }}" }
+        # Извлекаем kubeconfig из секрета GitHub и сохраняем его в нужное место
+        $kubeconfig = ${{ secrets.KUBERNETES_CONFIG }}
+        $kubeconfig | Out-File -FilePath "$env:USERPROFILE\.kube\config" -Force
+
+    # Шаг 5: Применение Kubernetes манифестов через kubectl
+    - name: Deploy to Kubernetes
+      run: |
+        kubectl apply -f deployment.yaml
 
