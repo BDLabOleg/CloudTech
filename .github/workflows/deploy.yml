@@ -1,4 +1,4 @@
-name: Deploy to Kubernetes via Argo CD
+name: Deploy to Kubernetes
 
 on:
   workflow_run:
@@ -27,15 +27,21 @@ jobs:
         commit_message: "Update Kubernetes manifests with new image ${{ secrets.REGISTRY }}/${{ secrets.IMAGE_NAME }}:${{ github.sha }}"
         branch: main
 
-    # Шаг 4: Настройка kubeconfig для подключения к Kubernetes
-    - name: Configure Kubernetes credentials
+    # Шаг 4: Используем уже существующий kubeconfig
+    - name: Configure Kubernetes credentials from local kubeconfig
       run: |
-        # Извлекаем kubeconfig из секрета GitHub и сохраняем его в нужное место
-        $kubeconfig = ${{ secrets.KUBERNETES_CONFIG }}
-        $kubeconfig | Out-File -FilePath "C:\Users\Olegg\.kube\config" -Force
+        # Указываем путь к уже существующему файлу kubeconfig
+        $env:KUBECONFIG = "C:\Users\Olegg\.kube\config"
+        Write-Host "Kubeconfig is set"
 
-    # Шаг 5: Применение Kubernetes манифестов через kubectl
+    # Шаг 5: Установка kubectl
+    - name: Install kubectl
+      run: |
+        choco install kubernetes-cli
+
+    # Шаг 6: Применение Kubernetes манифестов через kubectl
     - name: Deploy to Kubernetes
       run: |
         kubectl apply -f deployment.yaml
+
 
