@@ -14,7 +14,11 @@ spec:
     spec:
       containers:
       - name: expense-tracker
+<<<<<<< HEAD
         image: omukhin/expense-tracker:latest 
+=======
+        image: /:35893ff88edfa5c18e8c50e1d45f6b00ed556de3
+>>>>>>> 66f75d0bb722b28a9cca8dd922596aced3231d7a
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000

@@ -1,7 +1,7 @@
 # Использование Windows Server Core как базового образа
 FROM mcr.microsoft.com/windows/servercore:ltsc2022
 
-# Установка Chocolatey
+# Установка Chocolatey (только один раз)
 RUN powershell -Command \
     Set-ExecutionPolicy Bypass -Scope Process -Force; \
     [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.SecurityProtocolType]::Tls12; \
@@ -16,7 +16,7 @@ RUN choco install nodejs-lts -y
 WORKDIR /usr/src/app
 
 # Копирование файлов package.json и package-lock.json
-COPY package*.json ./
+COPY app/package*.json ./
 
 # Установка зависимостей
 RUN npm install
@@ -26,7 +26,6 @@ COPY . .
 
 # Открытие порта 3000 (если ваше приложение работает на этом порту)
 EXPOSE 3000
-
+ 
 # Запуск приложения
 CMD ["npm", "start"]
-
