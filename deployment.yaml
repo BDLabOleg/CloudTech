@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: expense-tracker
-        image: /:452974f7b7a7fd5004a01eb448bade84c92681de
+        image: /:bd5fd6de0a4fb0073b6ae13790c79d5fe65ea1d9
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
