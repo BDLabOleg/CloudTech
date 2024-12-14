@@ -28,7 +28,7 @@ jobs:
         branch: main
 
     # Шаг 4: Настройка kubeconfig для подключения к Kubernetes
-    #- name: Configure Kubernetes credentials
+    - name: Configure Kubernetes credentials
      # run: |
     #  Извлекаем kubeconfig из секрета GitHub и сохраняем его в нужное место
        # $kubeconfig = ${{ secrets.KUBERNETES_CONFIG }}
