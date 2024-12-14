@@ -29,10 +29,10 @@ jobs:
 
     # Шаг 4: Настройка kubeconfig для подключения к Kubernetes
     - name: Configure Kubernetes credentials
-     # run: |
-    #  Извлекаем kubeconfig из секрета GitHub и сохраняем его в нужное место
-       # $kubeconfig = ${{ secrets.KUBERNETES_CONFIG }}
-       # $kubeconfig | Out-File -FilePath "C:\\Users\Olegg\.kube\config" -Force
+      run: |
+        # Извлекаем kubeconfig из секрета GitHub и сохраняем его в нужное место
+        $kubeconfig = ${{ secrets.KUBERNETES_CONFIG }}
+        $kubeconfig | Out-File -FilePath "C:\Users\Olegg\.kube\config" -Force
 
     # Шаг 5: Применение Kubernetes манифестов через kubectl
     - name: Deploy to Kubernetes
