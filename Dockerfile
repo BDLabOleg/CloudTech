@@ -1,6 +1,6 @@
 # Использование Ubuntu как базового образа
 FROM ubuntu:20.04
-
+ 
 # Установка необходимых зависимостей и Node.js
 RUN apt-get update && apt-get install -y \
     curl \
