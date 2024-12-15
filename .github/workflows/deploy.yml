@@ -1,9 +1,10 @@
-name: Build and Test Docker Image
+name: Deploy and Test Docker
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
 
 jobs:
   build-docker:
@@ -40,7 +41,6 @@ jobs:
         run: |
           Write-Host "Service returned:"
           docker logs expense-tracker
-
 
       # Stop and remove the container
       - name: Stop and remove the container
