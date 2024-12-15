@@ -50,6 +50,11 @@ app.post('/expenses', (req, res) => {
   res.status(201).json(newExpense);
 });
 
+// GET /healthcheck
+app.get('/api/healthcheck', (req, res) => {
+  res.send('ok');
+});
+
 // GET /expenses
 app.get('/expenses', (req, res) => {
   logger.info('Fetching all expenses');
