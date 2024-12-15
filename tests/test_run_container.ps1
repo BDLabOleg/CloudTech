@@ -25,7 +25,7 @@ docker logs $containerId
 #    docker logs $containerId
 #    docker rm -f $containerId
 #    exit 1
-}
+#}
 
 Write-Host "Service is reachable and returned status code 200."
 
