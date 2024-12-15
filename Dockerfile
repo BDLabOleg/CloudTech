@@ -1,5 +1,6 @@
 # Использование Windows Server Core как базового образа
-FROM mcr.microsoft.com/windows/servercore:ltsc2022
+#FROM mcr.microsoft.com/windows/servercore:ltsc2022
+FROM node:18-alpine
 
 # Установка Chocolatey (только один раз)
 RUN powershell -Command \
