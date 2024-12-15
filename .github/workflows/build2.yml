@@ -35,6 +35,11 @@ jobs:
         run: |
           PowerShell ./tests/test_build_image.ps1
 
+       # Test container run
+      - name: Test container run
+        run: |
+          PowerShell ./tests/test_run_container.ps1    
+
       # Push the Docker image to Docker Hub
       - name: Push Docker image
         run: docker push olegmukhin/expense-tracker:latest
