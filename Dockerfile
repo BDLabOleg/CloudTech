@@ -28,4 +28,6 @@ COPY . .
 EXPOSE 3000
  
 # Запуск приложения
-CMD ["npm", "start"]
+# CMD ["npm", "start"]
+CMD ["node", "server.js"]
+
