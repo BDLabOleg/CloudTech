@@ -28,7 +28,7 @@ jobs:
 
       # Build the Docker image
       - name: Build Docker image
-        run: docker build -t olegmukhin/expense-tracker:latest .
+        run: docker build --platform linux/amd64 -t olegmukhin/expense-tracker:latest .
 
       # Test Docker image build
       - name: Test Docker image build
