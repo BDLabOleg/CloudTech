@@ -1,5 +1,5 @@
 # Запускаємо контейнер
-$containerId = docker run -d -p 8080:80 olegmukhin/expense-tracker:latest
+$containerId = docker run -d -p 3000:3000 olegmukhin/expense-tracker:latest
 
 # Перевіряємо, чи контейнер працює
 $containerState = docker inspect -f '{{.State.Running}}' $containerId
