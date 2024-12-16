@@ -46,8 +46,8 @@ jobs:
       - name: Deploy to Kubernetes
         run: |
           kubectl config set-context --current --namespace=${{ env.NAMESPACE }}
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
           kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }}
 
       # Тестирование доступности приложения
@@ -62,5 +62,5 @@ jobs:
       - name: Clean up Kubernetes resources
         if: always()
         run: |
-          kubectl delete -f k8s/deployment.yaml
-          kubectl delete -f k8s/service.yaml
+          kubectl delete -f deployment.yaml
+          kubectl delete -f service.yaml
