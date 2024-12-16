@@ -29,12 +29,12 @@ jobs:
     # Build the Docker image
     - name: Build Docker image
       run: |
-        docker build -t $env:REGISTRY/$env:IMAGE_NAME:latest .
+        docker build -t olegmukhin/expense-tracker:latest .
 
     # Push the Docker image to Docker Hub
     - name: Push Docker image
       run: |
-        docker push $env:REGISTRY/$env:IMAGE_NAME:latest
+        docker push olegmukhin/expense-tracker:latest
 
     # Start Minikube
     - name: Start Minikube
@@ -49,7 +49,7 @@ jobs:
     # Load Docker image into Minikube
     - name: Load Docker image to Minikube
       run: |
-        minikube image load $env:REGISTRY/$env:IMAGE_NAME:latest
+        minikube image load olegmukhin/expense-tracker:latest
 
     # List running Docker containers
     - name: Check running Docker containers
@@ -59,7 +59,7 @@ jobs:
     # Update Kubernetes manifests with new image
     - name: Update Kubernetes manifests
       run: |
-        (Get-Content deployment.yaml) -replace "image:.*", "image: $env:REGISTRY/$env:IMAGE_NAME:latest" | Set-Content deployment.yaml
+        (Get-Content deployment.yaml) -replace "image:.*", "image: olegmukhin/expense-tracker:latest" | Set-Content deployment.yaml
 
     # Apply Kubernetes manifests
     - name: Apply Kubernetes manifests
