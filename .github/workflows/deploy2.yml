@@ -1,4 +1,4 @@
-name: Deploy and Test on Minikube
+name: Build and Deploy to Minikube on Windows
 
 on:
   push:
@@ -6,69 +6,72 @@ on:
       - main
 
 jobs:
-  deploy-minikube:
-    runs-on: windows-latest  # Используем Windows Runner для Minikube
+  build-and-deploy:
+    runs-on: windows-latest  # Windows Runner
 
     env:
+      REGISTRY: docker.io
       IMAGE_NAME: expense-tracker
-      NAMESPACE: default  # Kubernetes namespace
+      USERNAME: olegmukhin
 
     steps:
-      # Checkout the repository
-      - name: Checkout code
-        uses: actions/checkout@v3
+    # Checkout the repository
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      # Установить Minikube
-      - name: Install Minikube
-        run: |
-          # choco install minikube -y
-          minikube start
-          minikube status
+    # Log in to Docker Hub
+    - name: Log in to Docker Hub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
 
-      # Установить kubectl
-      - name: Install kubectl
-        run: |
-          curl -LO "https://dl.k8s.io/release/v1.27.0/bin/windows/amd64/kubectl.exe"
-          mkdir -Force $Env:USERPROFILE\kubectl
-          Move-Item -Path kubectl.exe -Destination $Env:USERPROFILE\kubectl
-          [Environment]::SetEnvironmentVariable("PATH", "$Env:USERPROFILE\kubectl;$Env:PATH", [EnvironmentVariableTarget]::Process)
-          kubectl version --client
-          kubectl config use-context minikube
+    # Build the Docker image
+    - name: Build Docker image
+      run: |
+        docker build -t $env:REGISTRY/$env:IMAGE_NAME:latest .
 
-      # Подключить Minikube к локальному Docker-демону
-      - name: Use Minikube Docker Daemon
-        shell: pwsh
-        run: |
-          & minikube docker-env | Invoke-Expression
-          docker ps  # Проверяем доступ к Docker-демону Minikube
+    # Push the Docker image to Docker Hub
+    - name: Push Docker image
+      run: |
+        docker push $env:REGISTRY/$env:IMAGE_NAME:latest
 
-      # Сборка и загрузка образа в Minikube
-      - name: Build Docker image in Minikube
-        shell: pwsh
-        run: |
-          docker build -t expense-tracker:latest .
-          docker images | Where-Object { $_.Repository -eq "expense-tracker" }
+    # Start Minikube
+    - name: Start Minikube
+      run: |
+        minikube start --driver=docker
 
-      # Развертывание в Minikube
-      - name: Deploy to Minikube
-        shell: pwsh
-        run: |
-          kubectl create namespace $Env:NAMESPACE || Write-Host "Namespace already exists"
-          kubectl config set-context --current --namespace=$Env:NAMESPACE
-          kubectl apply -f ./deployment.yaml
-          kubectl apply -f ./service.yaml
-          kubectl rollout status deployment/expense-tracker
+    # Configure Docker to use Minikube's internal Docker registry
+    - name: Use Minikube Docker
+      run: |
+        & minikube -p minikube docker-env | Invoke-Expression
 
-      # Тестирование доступности приложения
-      - name: Test application
-        shell: pwsh
-        run: |
-          $URL = minikube service expense-tracker --url
-          Write-Host "Application URL: $URL"
-          curl.exe -m 10 $URL || Write-Host "Service not accessible"
+    # Load Docker image into Minikube
+    - name: Load Docker image to Minikube
+      run: |
+        minikube image load $env:REGISTRY/$env:IMAGE_NAME:latest
 
-      # Остановка Minikube
-      - name: Stop Minikube
-        if: always()
-        run: |
-          minikube delete
+    # List running Docker containers
+    - name: Check running Docker containers
+      run: |
+        docker ps  # Проверяет, что Minikube использует Docker и отображает запущенные контейнеры
+
+    # Update Kubernetes manifests with new image
+    - name: Update Kubernetes manifests
+      run: |
+        (Get-Content deployment.yaml) -replace "image:.*", "image: $env:REGISTRY/$env:IMAGE_NAME:latest" | Set-Content deployment.yaml
+
+    # Apply Kubernetes manifests
+    - name: Apply Kubernetes manifests
+      run: |
+        kubectl apply -f deployment.yaml
+
+    # Wait for the app to be ready
+    - name: Wait for deployment
+      run: |
+        kubectl rollout status deployment/expense-tracker
+
+    # Test the app in Minikube
+    - name: Test the app in Minikube
+      run: |
+        minikube service expense-tracker --url
