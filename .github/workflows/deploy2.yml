@@ -22,7 +22,7 @@ jobs:
       - name: Install Minikube
         run: |
           # choco install minikube -y
-          minikube start --driver=docker --wait=true
+          minikube start
           minikube status
 
       # Установить kubectl
