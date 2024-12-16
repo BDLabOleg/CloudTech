@@ -1,10 +1,9 @@
 name: Deploy and Test on Minikube
 
 on:
-  workflow_run:
-    workflows: ["Build"]
-    types:
-      - completed
+  push:
+    branches:
+      - main
 
 jobs:
   deploy-minikube:
