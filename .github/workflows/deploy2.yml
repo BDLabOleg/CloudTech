@@ -1,33 +1,32 @@
-name: Deploy and Test Kubernetes on Windows
+name: Deploy and Test on Minikube
 
 on:
-  push:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["Build"]
+    types:
+      - completed
 
 jobs:
-  deploy-k8s:
-    runs-on: windows-latest  # Используем Windows Runner
+  deploy-minikube:
+    runs-on: windows-latest  # Используем Windows Runner для Minikube
 
     env:
-      REGISTRY: docker.io
       IMAGE_NAME: expense-tracker
-      NAMESPACE: default  # Namespace Kubernetes
-      DEPLOYMENT_NAME: expense-tracker
+      NAMESPACE: default  # Kubernetes namespace
 
     steps:
       # Checkout the repository
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Log in to Docker Hub
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+      # Установить Minikube
+      - name: Install Minikube
+        run: |
+          choco install minikube -y
+          minikube start --driver=docker --wait=true
+          minikube status
 
-      # Установка kubectl
+      # Установить kubectl
       - name: Install kubectl
         run: |
           curl -LO "https://dl.k8s.io/release/v1.27.0/bin/windows/amd64/kubectl.exe"
@@ -35,32 +34,42 @@ jobs:
           Move-Item -Path kubectl.exe -Destination $Env:USERPROFILE\kubectl
           [Environment]::SetEnvironmentVariable("PATH", "$Env:USERPROFILE\kubectl;$Env:PATH", [EnvironmentVariableTarget]::Process)
           kubectl version --client
+          kubectl config use-context minikube
 
-      # Настройка доступа к кластеру через KUBECONFIG
-      - name: Set up KUBECONFIG
+      # Подключить Minikube к локальному Docker-демону
+      - name: Use Minikube Docker Daemon
+        shell: pwsh
         run: |
-          New-Item -ItemType Directory -Force -Path $Env:USERPROFILE\.kube
-          Set-Content -Path $Env:USERPROFILE\.kube\config -Value "${{ secrets.KUBECONFIG }}"
+          & minikube docker-env | Invoke-Expression
+          docker ps  # Проверяем доступ к Docker-демону Minikube
 
-      # Развертывание приложения в Kubernetes
-      - name: Deploy to Kubernetes
+      # Сборка и загрузка образа в Minikube
+      - name: Build Docker image in Minikube
+        shell: pwsh
         run: |
-          kubectl config set-context --current --namespace=${{ env.NAMESPACE }}
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
-          kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }}
+          docker build -t expense-tracker:latest .
+          docker images | Where-Object { $_.Repository -eq "expense-tracker" }
+
+      # Развертывание в Minikube
+      - name: Deploy to Minikube
+        shell: pwsh
+        run: |
+          kubectl create namespace $Env:NAMESPACE || Write-Host "Namespace already exists"
+          kubectl config set-context --current --namespace=$Env:NAMESPACE
+          kubectl apply -f ./deployment.yaml
+          kubectl apply -f ./service.yaml
+          kubectl rollout status deployment/expense-tracker
 
       # Тестирование доступности приложения
-      - name: Test if app is running
+      - name: Test application
+        shell: pwsh
         run: |
-          $POD_NAME = kubectl get pods -l app=${{ env.DEPLOYMENT_NAME }} -o jsonpath="{.items[0].metadata.name}"
-          Write-Host "Testing pod: $POD_NAME"
-          kubectl logs $POD_NAME
-          curl.exe -m 10 http://localhost:3000 || Write-Host "Service not accessible"
+          $URL = minikube service expense-tracker --url
+          Write-Host "Application URL: $URL"
+          curl.exe -m 10 $URL || Write-Host "Service not accessible"
 
-      # Очистка ресурсов
-      - name: Clean up Kubernetes resources
+      # Остановка Minikube
+      - name: Stop Minikube
         if: always()
         run: |
-          kubectl delete -f deployment.yaml
-          kubectl delete -f service.yaml
+          minikube delete
