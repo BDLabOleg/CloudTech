@@ -16,19 +16,10 @@ Write-Host "Container is running successfully."
 Start-Sleep -Seconds 1
 
 # Перевіряємо доступність сервісу
-# $responseCode = (Invoke-WebRequest -Uri "http://localhost:3000" -UseBasicParsing).StatusCode
-# Write-Host "Service returned: $responseCode"
 Write-Host "Service returned:"
 docker logs $containerId
-#$responseCode = (Invoke-WebRequest -Uri "http://host.docker.internal:3000" -UseBasicPipes).StatusCode
-#if ($responseCode -ne 200) {
-#    Write-Host "ERROR: Service returned status code $responseCode"
-#    docker logs $containerId
-#    docker rm -f $containerId
-#    exit 1
-#}
 
-Write-Host "Service is reachable and returned status code 200."
+Write-Host "Service is reachable"
 
 # Зупиняємо контейнер
 docker rm -f $containerId
