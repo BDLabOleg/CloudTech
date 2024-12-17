@@ -7,7 +7,7 @@ on:
       - completed
 
 jobs:
-  build-docker:
+  deploy-docker:
     runs-on: windows-latest  # используем Windows Runner для Docker
 
     env:
